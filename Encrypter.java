@@ -1,7 +1,9 @@
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.io.BufferedWriter;
 
 public class Encrypter {
 
@@ -33,8 +35,10 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading or writing the files
      */
     public void encrypt(String inputFilePath, String encryptedFilePath) throws Exception {
-        //TODO: Call the read method, encrypt the file contents, and then write to new file
-        
+        // Call the read method, encrypt the file contents, and then write to a new file
+        String toEncrypt = readFile(inputFilePath);
+        String toEncrypttext = encryptText(toEncrypt);
+        writeFile(toEncrypttext, encryptedFilePath);
     }
 
     /**
@@ -45,7 +49,10 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading or writing the files
      */
     public void decrypt(String messageFilePath, String decryptedFilePath) throws Exception {
-        //TODO: Call the read method, decrypt the file contents, and then write to new file
+        // Call the read method, decrypt the file contents, and then write to a new file
+        String toDecrypt = readFile(messageFilePath);
+        String todecryptText = decryptText(toDecrypt);
+        writeFile(todecryptText, decryptedFilePath);
     }
 
     /**
@@ -55,10 +62,15 @@ public class Encrypter {
      * @return the content of the file as a string
      * @throws Exception if an error occurs while reading the file
      */
-    private static String readFile(String filePath) throws Exception {
-        String message = "";
-        //TODO: Read file from filePath
-        return message;
+    private static String readFile(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        }
+        return content.toString();
     }
 
     /**
@@ -67,8 +79,48 @@ public class Encrypter {
      * @param data     the data to be written to the file
      * @param filePath the path to the file where the data will be written
      */
-    private static void writeFile(String data, String filePath) {
-        //TODO: Write to filePath
+    private static void writeFile(String data, String filePath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(data);
+        }
+    }
+
+    /**
+     * Encrypts the given text using a simple Caesar cipher with the specified shift.
+     *
+     * @param text the text to be encrypted
+     * @return the encrypted text
+     */
+    private String encryptText(String text) {
+        StringBuilder encryptedText = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char encryptedChar = (char) (((c - 'A' + shift) % 26) + 'A');
+                encryptedText.append(encryptedChar);
+            } else {
+                encryptedText.append(c);
+            }
+        }
+        return encryptedText.toString();
+    }
+
+    /**
+     * Decrypts the given text using a simple Caesar cipher with the specified shift.
+     *
+     * @param text the text to be decrypted
+     * @return the decrypted text
+     */
+    private String decryptText(String text) {
+        StringBuilder decryptedText = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c)) {
+                char decryptedChar = (char) (((c - 'A' - shift + 26) % 26) + 'A');
+                decryptedText.append(decryptedChar);
+            } else {
+                decryptedText.append(c);
+            }
+        }
+        return decryptedText.toString();
     }
 
     /**
